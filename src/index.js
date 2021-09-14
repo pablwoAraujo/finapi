@@ -67,6 +67,10 @@ app.post("/deposit", verifyIfExistsAccountCPF, (req, res)=>{
   const { customer } = req;
   const { description, amount } = req.body;
 
+  if(!amount){
+    return res.status(400).json({error: "Bad Request!"});
+  }
+
   const statementOperation = {
     description,
     amount,
@@ -82,6 +86,10 @@ app.post("/deposit", verifyIfExistsAccountCPF, (req, res)=>{
 app.post("/withdraw", verifyIfExistsAccountCPF, (req, res)=>{
   const { amount } = req.body;
   const { customer } = req;
+
+  if(!amount){
+    return res.status(400).json({error: "Bad Request!"});
+  }
 
   const balance = getBalance(customer.statement);
   if(balance<amount){
@@ -103,6 +111,9 @@ app.get("/statement/date", verifyIfExistsAccountCPF, (req, res)=>{
   const { customer } = req;
   const { date } = req.query;
 
+  if(!date){
+    return res.status(400).json({error: "Bad Request!"});
+  }
   const dateFormat = new Date(date + " 00:00");
 
   const statement = customer.statement.filter(
@@ -113,4 +124,22 @@ app.get("/statement/date", verifyIfExistsAccountCPF, (req, res)=>{
 
   return res.json(statement);
 });
+
+app.put("/account", verifyIfExistsAccountCPF, (req, res)=> {
+  const { name } = req.body;
+  const { customer } = req;
+
+  if(!name){
+    return res.status(400).json({error: "Bad Request!"});
+  }
+  customer.name = name;
+  return res.status(201).send();
+});
+
+app.get("/account", verifyIfExistsAccountCPF, (req, res)=> {
+  const { customer } = req;
+
+  return res.json(customer)
+});
+
 app.listen(3333);
